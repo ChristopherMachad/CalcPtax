@@ -1,6 +1,9 @@
-# oportunidade de aprendizado com biblioteca Tkinter e facilitar a vida dos companheiros no trabalho
-# código para facilitar calculo de preço usado em vendas de determinados produtos. 
-# funciona bem mas precisa ser lapidado. Não aceita erros humanos, como str onde se espera int ou floats, divisão por 0 e possivelmente outros.
+# possiveis erros :
+# conta com valor 0 de desagio, vai estar errada. O código dará um erro, mas ainda é usado processamento
+# ainda é possivel colocar string nas casas
+
+#--------------------------Updates------------------------
+# coloquei uma janela de erro para quando o numero do lote receber algum valor que não seja numerico.
 
 from tkinter import *
 from tkinter import ttk
@@ -34,40 +37,41 @@ lbl_line = Label(frame_up, text='', width=275, anchor=NW, font=('Arial 1'), bg=c
 lbl_line.place(x=10, y=40)
 
 # ----------- CONFIG DE FRAME DE BAIXO ( FORMULARIO ) -------------------
-lbl_lote = Label(frame_down, text='Número do Lote*:', anchor=NE, font=('Arial 10'), bg=co1, fg=co3)
+lbl_lote = Label(frame_down, text='Número do Lote:', anchor=NE, font=('Arial 10'), bg=co1, fg=co3)
 lbl_lote.place(x=10, y=5)
 edt_lote = Entry(frame_down, width=20, justify='left', font=("", 10), highlightthickness=1, relief='solid')
 edt_lote.place(x=120, y=5)
 
-lbl_desagio = Label(frame_down, text='Pontos desagio*:', anchor=NE, font=('Arial 10'), bg=co1, fg=co3)
+lbl_desagio = Label(frame_down, text='Pontos desagio:', anchor=NE, font=('Arial 10'), bg=co1, fg=co3)
 lbl_desagio.place(x=10, y=35)
 edt_desagio = Entry(frame_down, width=20, justify='left', font=("", 10), highlightthickness=1, relief='solid')
 edt_desagio.place(x=120, y=35)
 
-lbl_contrato = Label(frame_down, text='valor contrato*:', anchor=NE, font=('Arial 10'), bg=co1, fg=co3)
+lbl_contrato = Label(frame_down, text='valor contrato:', anchor=NE, font=('Arial 10'), bg=co1, fg=co3)
 lbl_contrato.place(x=10, y=65)
 edt_contrato = Entry(frame_down, width=20, justify='left', font=("", 10), highlightthickness=1, relief='solid')
 edt_contrato.place(x=120, y=65)
 
-lbl_ptax = Label(frame_down, text='valor PTAX*:', anchor=NE, font=('Arial 10'), bg=co1, fg=co3)
+lbl_ptax = Label(frame_down, text='valor PTAX:', anchor=NE, font=('Arial 10'), bg=co1, fg=co3)
 lbl_ptax.place(x=10, y=95)
 edt_ptax = Entry(frame_down, width=20, justify='left', font=("", 10), highlightthickness=1, relief='solid')
 edt_ptax.place(x=120, y=95)
 
-lbl_ICMS = Label(frame_down, text='Possui ICMS*:', anchor=NE, font=('Arial 10'), bg=co1, fg=co3)
+lbl_ICMS = Label(frame_down, text='Possui ICMS:', anchor=NE, font=('Arial 10'), bg=co1, fg=co3)
 lbl_ICMS.place(x=10, y=125)
 cb_ICMS = ttk.Combobox(frame_down, values=["Sim", "Não"], width=20, justify='left', state='readonly')
 cb_ICMS.place(x=120, y=125)
 
 lbl_result = Label(frame_down, text='Valor final:', anchor=NE, font=('Arial 10'), bg=co1, fg=co3)
-lbl_result.place(x=130, y=155)
+lbl_result.place(x=120, y=155)
 edt_result = Entry(frame_down, width=40, justify='left', font=("", 10), highlightthickness=1, relief='solid')
-edt_result.place(x=10, y=180)
+edt_result.place(x=10, y=175)
 
 
 # ----------- Funções dos butões -------------------
+
 def calcular():
-    lote = int(edt_lote.get())
+    lote = (edt_lote.get())
     valor_ctr = float(edt_contrato.get())
     dsg_ag = float(edt_desagio.get())
     ptax_med = float(edt_ptax.get())
@@ -75,14 +79,36 @@ def calcular():
     dsg_final = dsg_ag / 10000
     ctr_final = valor_ctr - (dsg_final * -1)
     valor_final = ctr_final * 2.2046 * ptax_med
+    a = (lote.isnumeric()) #check if a é numerico.
+    print(a) #print pra ter ctz
 
     if optinal == 'Sim':
         print(str(valor_final / 0.88))
+        edt_result.delete(0, END)
         edt_result.insert(0, 'O valor do lote ' + str(lote) + ' com ICMS é: ' + str(valor_final / 0.88))
+
     if optinal == 'Não':
         print(str(valor_final))
+        edt_result.delete(0, END)
         edt_result.insert(0, 'O valor do lote ' + str(lote) + ' sem ICMS é: ' + str(valor_final))
 
+    if a == False: #joga pra tela de resultados. O problema é que ele ainda usa processamento pra fazer as contas.
+        erro1 = Tk()
+        erro1.title("ERRO 01")
+        erro1.geometry('200x75')
+        erro1.resizable(width=False, height=False)
+        tela_erro = Label(erro1, width=25, font='arial 10', text='lote precisa ser numerico ', fg='black', bg='white')
+        tela_erro.place(x=10, y=10)
+        def sair():
+            erro1.destroy()
+
+        ok = Button(erro1, text='ok', compound=LEFT, command=sair)
+        ok.place(x=90, y=40)
+        edt_result.delete(0, END)
+
+    if dsg_ag == 0: #Erro caso a divisão seja feita por 0
+        edt_result.delete(0, END)
+        edt_result.insert(0, 'impossivel divisao por 0')
 
 def limpar_formulario():
     edt_lote.delete(0, END)
